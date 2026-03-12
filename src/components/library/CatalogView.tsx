@@ -130,17 +130,17 @@ const CatalogView = ({ books, onBookClick, onAddBook, showArchived = false, onTo
 
       {/* Table View */}
       {viewMode === 'table' && (
-        <div className="border border-border rounded-lg overflow-hidden">
+        <div className="border border-border rounded-xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border bg-muted/50">
-                  <th className="text-left p-3 font-medium text-muted-foreground text-xs uppercase tracking-widest">Título</th>
-                  <th className="text-left p-3 font-medium text-muted-foreground text-xs uppercase tracking-widest">Autor</th>
-                  <th className="text-left p-3 font-medium text-muted-foreground text-xs uppercase tracking-widest hidden md:table-cell">Gênero</th>
-                  <th className="text-left p-3 font-medium text-muted-foreground text-xs uppercase tracking-widest">Status</th>
-                  <th className="text-left p-3 font-medium text-muted-foreground text-xs uppercase tracking-widest hidden sm:table-cell">Nota</th>
-                  <th className="text-left p-3 font-medium text-muted-foreground text-xs uppercase tracking-widest hidden lg:table-cell">Páginas</th>
+                <tr className="border-b border-border bg-secondary/50">
+                  <th className="text-left p-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">Título</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">Autor</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground text-xs uppercase tracking-wider hidden md:table-cell">Gênero</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">Status</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground text-xs uppercase tracking-wider hidden sm:table-cell">Nota</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground text-xs uppercase tracking-wider hidden lg:table-cell">Páginas</th>
                 </tr>
               </thead>
               <tbody>
@@ -148,17 +148,17 @@ const CatalogView = ({ books, onBookClick, onAddBook, showArchived = false, onTo
                   <tr
                     key={book.id}
                     onClick={() => onBookClick(book)}
-                    className="border-b border-border last:border-0 hover:bg-muted/30 cursor-pointer transition-colors"
+                    className="border-b border-border last:border-0 hover:bg-secondary/30 cursor-pointer transition-colors"
                   >
                     <td className="p-3">
                       <div className="flex items-center gap-3">
                         <img
                           src={book.coverUrl}
                           alt={book.title}
-                          className="w-8 h-12 rounded object-cover flex-shrink-0"
+                          className="w-8 h-12 rounded-lg object-cover flex-shrink-0 border border-border"
                           onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
                         />
-                        <span className="font-medium truncate max-w-[200px] font-serif">{book.title}</span>
+                        <span className="font-medium truncate max-w-[200px]">{book.title}</span>
                       </div>
                     </td>
                     <td className="p-3 text-muted-foreground">{book.authors}</td>
