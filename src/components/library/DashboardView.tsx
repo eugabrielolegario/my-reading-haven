@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { Book } from '@/types/book';
 import KPICard from './KPICard';
-import ReadingHeatmap from './ReadingHeatmap';
 import {
   BookOpen, CheckCircle2, Eye, BookMarked, FileText,
   Star, Award, CalendarDays, TrendingUp, Trophy, Quote, Target,
@@ -22,10 +21,10 @@ interface DashboardViewProps {
 }
 
 const CHART_COLORS = [
-  'hsl(36, 55%, 50%)',
+  'hsl(40, 64%, 58%)',
   'hsl(217, 55%, 55%)',
-  'hsl(30, 8%, 50%)',
-  'hsl(45, 65%, 42%)',
+  'hsl(30, 8%, 45%)',
+  'hsl(45, 60%, 45%)',
   'hsl(0, 50%, 45%)',
 ];
 
