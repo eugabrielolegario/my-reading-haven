@@ -89,10 +89,10 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-xl overflow-y-auto paper-texture">
+      <SheetContent className="w-full sm:max-w-xl overflow-y-auto rounded-l-2xl bg-card border-l border-border">
         <SheetHeader className="pb-4">
           <div className="flex items-start justify-between">
-            <SheetTitle className="font-serif text-xl">{book.title}</SheetTitle>
+            <SheetTitle className="text-xl font-semibold">{book.title}</SheetTitle>
             <div className="flex gap-1">
               <Button variant="ghost" size="icon" onClick={startEdit} className="h-8 w-8">
                 <Edit3 size={14} />
@@ -106,7 +106,7 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
                     <Trash2 size={14} />
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent>
+                <AlertDialogContent className="rounded-2xl bg-card border border-border">
                   <AlertDialogHeader>
                     <AlertDialogTitle>Excluir "{book.title}"?</AlertDialogTitle>
                     <AlertDialogDescription>
@@ -129,7 +129,7 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
         </SheetHeader>
 
         <Tabs defaultValue="details" className="w-full">
-          <TabsList className="w-full grid grid-cols-3">
+          <TabsList className="w-full grid grid-cols-3 bg-secondary">
             <TabsTrigger value="details">Detalhes</TabsTrigger>
             <TabsTrigger value="diary">Diário</TabsTrigger>
             <TabsTrigger value="quotes">Citações</TabsTrigger>
@@ -141,7 +141,7 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
               <img
                 src={book.coverUrl}
                 alt={book.title}
-                className="w-28 h-40 rounded-lg object-cover shadow-md flex-shrink-0 ornamental-border"
+                className="w-28 h-40 rounded-xl object-cover flex-shrink-0 border border-border"
                 onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
               />
               <div className="space-y-3 flex-1">
