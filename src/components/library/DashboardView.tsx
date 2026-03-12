@@ -335,7 +335,7 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
       {/* Currently Reading */}
       {stats.readingBooks.length > 0 && (
         <div className="animate-fade-in" style={{ animationDelay: '550ms' }}>
-          <h3 className="text-lg font-semibold font-serif mb-4">📖 Lendo Agora</h3>
+          <h3 className="text-lg font-semibold mb-4">Lendo Agora</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {stats.readingBooks.map(book => {
               const progress = book.pages ? Math.round(((book.pagesRead ?? 0) / book.pages) * 100) : 0;
@@ -343,16 +343,16 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
                 <div
                   key={book.id}
                   onClick={() => onBookClick(book)}
-                  className="flex gap-4 p-4 rounded-lg ornamental-border bg-card hover:border-primary/40 transition-colors cursor-pointer paper-texture"
+                  className="flex gap-4 p-4 rounded-xl bg-card hover:border-primary/40 transition-colors cursor-pointer border border-border"
                 >
                   <img
                     src={book.coverUrl}
                     alt={book.title}
-                    className="w-14 h-20 rounded-md object-cover flex-shrink-0"
+                    className="w-14 h-20 rounded-lg object-cover flex-shrink-0 border border-border"
                     onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm truncate font-serif">{book.title}</p>
+                    <p className="font-semibold text-sm truncate">{book.title}</p>
                     <p className="text-xs text-muted-foreground">{book.authors}</p>
                     <div className="mt-2">
                       <div className="flex justify-between text-xs text-muted-foreground mb-1">
@@ -372,26 +372,30 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
       {/* Recent Reads */}
       {stats.recentlyCompleted.length > 0 && (
         <div className="animate-fade-in" style={{ animationDelay: '600ms' }}>
-          <h3 className="text-lg font-semibold font-serif mb-4">✦ Últimas Leituras</h3>
+          <h3 className="text-lg font-semibold mb-4">Últimas Leituras</h3>
           <div className="space-y-2">
             {stats.recentlyCompleted.map(book => (
               <div
                 key={book.id}
                 onClick={() => onBookClick(book)}
-                className="flex items-center gap-4 p-3 rounded-lg ornamental-border bg-card hover:border-primary/40 transition-colors cursor-pointer"
+                className="flex items-center gap-4 p-3 rounded-xl bg-card hover:border-primary/40 transition-colors cursor-pointer border border-border"
               >
                 <img
                   src={book.coverUrl}
                   alt={book.title}
-                  className="w-10 h-14 rounded object-cover flex-shrink-0"
+                  className="w-10 h-14 rounded-lg object-cover flex-shrink-0 border border-border"
                   onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
                 />
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm truncate font-serif">{book.title}</p>
+                  <p className="font-semibold text-sm truncate">{book.title}</p>
                   <p className="text-xs text-muted-foreground">{book.authors}</p>
                 </div>
-                <StarRating rating={book.rating} size={14} />
-                <StatusBadge status={book.status} />
+                <div className="text-right">
+                  <p className="text-sm font-semibold">{book.rating}★</p>
+                  <p className="text-xs text-muted-foreground">
+                    {book.endDate && new Date(book.endDate).toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
@@ -401,14 +405,9 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
   );
 };
 
-function pagesPerDayProjection(current: number, goal: number): string {
-  const now = new Date();
-  const endOfYear = new Date(now.getFullYear(), 11, 31);
-  const daysLeft = Math.ceil((endOfYear.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-  const remaining = goal - current;
-  if (remaining <= 0) return 'Meta cumprida!';
-  const booksPerMonth = (remaining / (daysLeft / 30)).toFixed(1);
-  return `~${booksPerMonth} livros/mês para atingir a meta`;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function pagesPerDayProjection(_current: number, _goal: number): string {
+  return '';
 }
 
 export default DashboardView;
