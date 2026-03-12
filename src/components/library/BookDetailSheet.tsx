@@ -303,8 +303,8 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
 
           {/* DIARY TAB */}
           <TabsContent value="diary" className="space-y-4 mt-4">
-            <div className="space-y-3 p-4 rounded-lg bg-muted/30 border border-border">
-              <h4 className="text-sm font-semibold font-serif">Nova Sessão de Leitura</h4>
+            <div className="space-y-3 p-4 rounded-xl bg-secondary/50 border border-border">
+              <h4 className="text-sm font-semibold">Nova Sessão de Leitura</h4>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label className="text-xs">Data</Label>
@@ -322,7 +322,7 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
                     <button
                       key={m.value}
                       onClick={() => setNewSession(p => ({ ...p, mood: p.mood === m.value ? '' : m.value }))}
-                      className={`text-lg p-1 rounded transition-all ${newSession.mood === m.value ? 'bg-accent scale-110' : 'opacity-50 hover:opacity-100'}`}
+                      className={`text-lg p-1 rounded transition-all ${newSession.mood === m.value ? 'bg-secondary scale-110' : 'opacity-50 hover:opacity-100'}`}
                       title={m.label}
                     >
                       {m.emoji}
@@ -348,14 +348,14 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
             {/* Sessions list */}
             <div className="space-y-2">
               {(book.readingSessions ?? []).slice().reverse().map(session => (
-                <div key={session.id} className="p-3 rounded-lg border border-border bg-card text-sm">
+                <div key={session.id} className="p-3 rounded-xl border border-border bg-card text-sm">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs text-muted-foreground">
                       {new Date(session.date).toLocaleDateString('pt-BR')}
                     </span>
                     <div className="flex items-center gap-2">
                       {session.mood && <span>{MOODS.find(m => m.value === session.mood)?.emoji}</span>}
-                      <Badge variant="secondary" className="text-xs">{session.pagesRead} pág.</Badge>
+                      <span className="text-xs bg-secondary px-2 py-0.5 rounded-full">{session.pagesRead} pág.</span>
                     </div>
                   </div>
                   {session.notes && <p className="text-muted-foreground mt-1">{session.notes}</p>}
