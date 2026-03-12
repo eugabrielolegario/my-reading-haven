@@ -214,7 +214,7 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Status Pie */}
-        <div className="rounded-lg ornamental-border bg-card p-5 animate-fade-in paper-texture" style={{ animationDelay: '400ms' }}>
+        <div className="rounded-xl bg-card p-5 animate-fade-in border border-border" style={{ animationDelay: '400ms' }}>
           <h3 className="text-xs font-semibold text-muted-foreground mb-4 uppercase tracking-widest">Distribuição por Status</h3>
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>
@@ -227,7 +227,7 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
                 contentStyle={{
                   backgroundColor: 'hsl(var(--card))',
                   border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   fontSize: '13px',
                 }}
               />
@@ -237,7 +237,7 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
         </div>
 
         {/* Genre Bars */}
-        <div className="rounded-lg ornamental-border bg-card p-5 animate-fade-in paper-texture" style={{ animationDelay: '450ms' }}>
+        <div className="rounded-xl bg-card p-5 animate-fade-in border border-border" style={{ animationDelay: '450ms' }}>
           <h3 className="text-xs font-semibold text-muted-foreground mb-4 uppercase tracking-widest">Top Gêneros</h3>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={genreData} layout="vertical" margin={{ left: 10, right: 10 }}>
@@ -248,7 +248,7 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
                 contentStyle={{
                   backgroundColor: 'hsl(var(--card))',
                   border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   fontSize: '13px',
                 }}
               />
@@ -258,7 +258,7 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
         </div>
 
         {/* Year Bars */}
-        <div className="rounded-lg ornamental-border bg-card p-5 animate-fade-in paper-texture" style={{ animationDelay: '500ms' }}>
+        <div className="rounded-xl bg-card p-5 animate-fade-in border border-border" style={{ animationDelay: '500ms' }}>
           <h3 className="text-xs font-semibold text-muted-foreground mb-4 uppercase tracking-widest">Livros por Ano</h3>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={yearData} margin={{ left: -10, right: 10 }}>
@@ -269,7 +269,7 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
                 contentStyle={{
                   backgroundColor: 'hsl(var(--card))',
                   border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   fontSize: '13px',
                 }}
               />
@@ -281,13 +281,13 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
 
       {/* Top Authors */}
       {stats.topAuthors.length > 0 && (
-        <div className="rounded-lg ornamental-border bg-card p-5 animate-fade-in paper-texture">
+        <div className="rounded-xl bg-card p-5 animate-fade-in border border-border">
           <h3 className="text-xs font-semibold text-muted-foreground mb-4 uppercase tracking-widest">Autores Favoritos</h3>
           <div className="space-y-2">
             {stats.topAuthors.map((author, i) => (
               <div key={author.name} className="flex items-center justify-between py-2 border-b border-border last:border-0">
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-muted-foreground w-5 font-serif font-bold">{i + 1}</span>
+                  <span className="text-xs text-muted-foreground w-5 font-semibold">{i + 1}</span>
                   <span className="text-sm font-medium">{author.name}</span>
                 </div>
                 <div className="flex items-center gap-3">
@@ -303,25 +303,25 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
       {/* Descobertas do Mês */}
       {stats.recentlyAdded.length > 0 && (
         <div className="animate-fade-in" style={{ animationDelay: '550ms' }}>
-          <h3 className="text-lg font-semibold font-serif mb-4 flex items-center gap-2">
-            ✦ Descobertas Recentes
+          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            Descobertas Recentes
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {stats.recentlyAdded.map(book => (
               <div
                 key={book.id}
                 onClick={() => onBookClick(book)}
-                className="rounded-lg ornamental-border bg-card p-4 cursor-pointer hover:border-primary/40 transition-colors paper-texture"
+                className="rounded-xl bg-card p-4 cursor-pointer hover:border-primary/40 transition-colors border border-border"
               >
                 <div className="flex gap-3">
                   <img
                     src={book.coverUrl}
                     alt={book.title}
-                    className="w-12 h-18 rounded object-cover"
+                    className="w-12 h-18 rounded-lg object-cover border border-border"
                     onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
                   />
                   <div>
-                    <p className="font-serif font-semibold text-sm leading-tight">{book.title}</p>
+                    <p className="font-semibold text-sm leading-tight">{book.title}</p>
                     <p className="text-xs text-muted-foreground">{book.authors}</p>
                     <StatusBadge status={book.status} className="mt-1" />
                   </div>
