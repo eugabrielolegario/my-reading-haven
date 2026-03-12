@@ -21,6 +21,17 @@ export const mockBooks: Book[] = [
     endDate: '2026-02-05',
     notes: 'Uma jornada épica incomparável. A construção de mundo de Tolkien é absurda.',
     coverUrl: 'https://covers.openlibrary.org/b/isbn/9780618640157-L.jpg',
+    quotes: [
+      { id: 'q1', text: 'Nem todos os que vagueiam estão perdidos.', page: 241, addedAt: '2026-01-20' },
+      { id: 'q2', text: 'Mesmo a menor das pessoas pode mudar o curso do futuro.', page: 398, chapter: 'O Conselho de Elrond', addedAt: '2026-01-25' },
+    ],
+    readingSessions: [
+      { id: 'rs1', date: '2026-01-10', pagesRead: 50, notes: 'Início promissor, o Condado é encantador.', mood: 'excited' },
+      { id: 'rs2', date: '2026-01-15', pagesRead: 80, notes: 'Tom Bombadil é um personagem fascinante.', mood: 'inspired' },
+      { id: 'rs3', date: '2026-01-22', pagesRead: 120, notes: 'Moria... que tensão incrível.', mood: 'excited' },
+      { id: 'rs4', date: '2026-02-01', pagesRead: 200, notes: 'Lothlórien é pura poesia.', mood: 'inspired' },
+      { id: 'rs5', date: '2026-02-05', pagesRead: 126, notes: 'Final devastador. Boromir...', mood: 'thoughtful' },
+    ],
   },
   {
     id: '2',
@@ -42,6 +53,14 @@ export const mockBooks: Book[] = [
     endDate: '2026-03-01',
     notes: 'Perspectiva fascinante sobre a história humana. Alguns argumentos controversos.',
     coverUrl: 'https://covers.openlibrary.org/b/isbn/9780062316097-L.jpg',
+    quotes: [
+      { id: 'q3', text: 'A Revolução Agrícola foi a maior fraude da história.', page: 87, addedAt: '2026-02-15' },
+    ],
+    readingSessions: [
+      { id: 'rs6', date: '2026-02-10', pagesRead: 100, notes: 'Revolução Cognitiva - conceitos muito bons.', mood: 'inspired' },
+      { id: 'rs7', date: '2026-02-20', pagesRead: 200, notes: 'Revolução Agrícola - controverso mas interessante.', mood: 'thoughtful' },
+      { id: 'rs8', date: '2026-03-01', pagesRead: 164, notes: 'Conclusão sobre o futuro da espécie é perturbadora.', mood: 'thoughtful' },
+    ],
   },
   {
     id: '3',
@@ -64,6 +83,11 @@ export const mockBooks: Book[] = [
     notes: '',
     coverUrl: 'https://covers.openlibrary.org/b/isbn/9780441172719-L.jpg',
     pagesRead: 320,
+    readingSessions: [
+      { id: 'rs9', date: '2026-03-05', pagesRead: 80, notes: 'Arrakis é hipnotizante.', mood: 'excited' },
+      { id: 'rs10', date: '2026-03-08', pagesRead: 120, notes: 'A política entre as Casas é complexa.', mood: 'thoughtful' },
+      { id: 'rs11', date: '2026-03-11', pagesRead: 120, notes: 'Paul está se tornando Fremen.', mood: 'excited' },
+    ],
   },
   {
     id: '4',
@@ -85,6 +109,9 @@ export const mockBooks: Book[] = [
     endDate: '2026-03-08',
     notes: 'Uma reflexão profunda sobre responsabilidade e humanidade.',
     coverUrl: 'https://covers.openlibrary.org/b/isbn/9780141439471-L.jpg',
+    quotes: [
+      { id: 'q4', text: 'Nada é tão doloroso para a mente humana quanto uma grande e súbita mudança.', page: 198, addedAt: '2026-03-02' },
+    ],
   },
   {
     id: '5',
@@ -170,5 +197,9 @@ export const mockBooks: Book[] = [
     notes: '',
     coverUrl: 'https://covers.openlibrary.org/b/isbn/9780441569595-L.jpg',
     pagesRead: 85,
+    readingSessions: [
+      { id: 'rs12', date: '2026-03-10', pagesRead: 45, notes: 'O ciberespaço de Gibson é visionário.', mood: 'excited' },
+      { id: 'rs13', date: '2026-03-12', pagesRead: 40, notes: 'Case é um protagonista complexo.', mood: 'thoughtful' },
+    ],
   },
 ];

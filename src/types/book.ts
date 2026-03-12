@@ -8,6 +8,22 @@ export type BookStatus = 'Concluído' | 'Lendo' | 'Quero Ler' | 'Pausado' | 'Aba
 export type BookLanguage = 'Português' | 'Inglês' | 'Espanhol' | 'Japonês' | 'Francês' | 'Alemão';
 export type BookFormat = 'Físico' | 'E-book' | 'Audiolivro' | 'PDF';
 
+export interface ReadingSession {
+  id: string;
+  date: string;
+  pagesRead: number;
+  notes: string;
+  mood?: 'inspired' | 'thoughtful' | 'bored' | 'excited' | 'confused';
+}
+
+export interface Quote {
+  id: string;
+  text: string;
+  page?: number;
+  chapter?: string;
+  addedAt: string;
+}
+
 export interface Book {
   id: string;
   title: string;
@@ -29,6 +45,11 @@ export interface Book {
   notes: string;
   coverUrl: string;
   pagesRead?: number;
+  archived?: boolean;
+  collection?: string;
+  readingSessions?: ReadingSession[];
+  quotes?: Quote[];
+  readingGoalYear?: number;
 }
 
 export const GENRES: BookGenre[] = [
@@ -41,6 +62,14 @@ export const GENRES: BookGenre[] = [
 export const STATUSES: BookStatus[] = ['Concluído', 'Lendo', 'Quero Ler', 'Pausado', 'Abandonado'];
 export const LANGUAGES: BookLanguage[] = ['Português', 'Inglês', 'Espanhol', 'Japonês', 'Francês', 'Alemão'];
 export const FORMATS: BookFormat[] = ['Físico', 'E-book', 'Audiolivro', 'PDF'];
+
+export const MOODS = [
+  { value: 'inspired' as const, label: '✨ Inspirado', emoji: '✨' },
+  { value: 'thoughtful' as const, label: '🤔 Reflexivo', emoji: '🤔' },
+  { value: 'bored' as const, label: '😴 Entediado', emoji: '😴' },
+  { value: 'excited' as const, label: '🔥 Empolgado', emoji: '🔥' },
+  { value: 'confused' as const, label: '😵 Confuso', emoji: '😵' },
+];
 
 export const STATUS_CONFIG: Record<BookStatus, { class: string; dot: string }> = {
   'Concluído': { class: 'status-badge-completed', dot: 'bg-status-completed' },
