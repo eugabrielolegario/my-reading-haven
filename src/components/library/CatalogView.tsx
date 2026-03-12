@@ -104,7 +104,7 @@ const CatalogView = ({ books, onBookClick, onAddBook, showArchived = false, onTo
             <div
               key={book.id}
               onClick={() => onBookClick(book)}
-              className="group cursor-pointer rounded-lg ornamental-border bg-card overflow-hidden hover:border-primary/40 hover:shadow-lg transition-all animate-fade-in paper-texture"
+              className="group cursor-pointer rounded-xl bg-card overflow-hidden border border-border hover:border-primary/40 transition-colors animate-fade-in"
               style={{ animationDelay: `${i * 30}ms` }}
             >
               <div className="aspect-[2/3] bg-muted overflow-hidden">
@@ -116,9 +116,9 @@ const CatalogView = ({ books, onBookClick, onAddBook, showArchived = false, onTo
                 />
               </div>
               <div className="p-3 space-y-1.5">
-                <p className="font-semibold text-sm leading-tight truncate font-serif">{book.title}</p>
+                <p className="font-semibold text-sm leading-tight truncate">{book.title}</p>
                 <p className="text-xs text-muted-foreground truncate">{book.authors}</p>
-                <div className="flex items-center justify-between gap-1">
+                <div className="flex items-center justify-between gap-1 pt-1">
                   <StatusBadge status={book.status} />
                   {book.rating && <StarRating rating={book.rating} size={12} />}
                 </div>
