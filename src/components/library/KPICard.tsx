@@ -14,15 +14,15 @@ const KPICard = ({ title, value, icon, subtitle, className, delay = 0 }: KPICard
   return (
     <div
       className={cn(
-        'rounded-xl border border-border bg-card p-5 animate-fade-in',
+        'rounded-lg ornamental-border bg-card p-5 animate-fade-in paper-texture',
         className
       )}
       style={{ animationDelay: `${delay}ms` }}
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-medium text-muted-foreground">{title}</p>
-          <p className="text-3xl font-bold mt-1 font-serif">{value}</p>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest">{title}</p>
+          <p className="text-3xl font-bold mt-1.5 font-serif text-foreground">{value}</p>
           {subtitle && (
             <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
           )}

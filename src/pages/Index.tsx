@@ -18,8 +18,9 @@ const Index = () => {
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
-  const [dark, setDark] = useState(false);
+  const [dark, setDark] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', dark);
@@ -33,11 +34,20 @@ const Index = () => {
   const handleUpdateBook = (updated: Book) => {
     setBooks(prev => prev.map(b => b.id === updated.id ? updated : b));
     setSelectedBook(updated);
-    toast.success('Livro atualizado!');
   };
 
   const handleAddBook = (book: Book) => {
     setBooks(prev => [book, ...prev]);
+  };
+
+  const handleDeleteBook = (id: string) => {
+    setBooks(prev => prev.filter(b => b.id !== id));
+    toast.success('Livro excluído permanentemente.');
+  };
+
+  const handleArchiveBook = (id: string) => {
+    setBooks(prev => prev.map(b => b.id === id ? { ...b, archived: !b.archived } : b));
+    toast.success('Livro arquivado.');
   };
 
   const handleExportCSV = () => {
@@ -65,47 +75,42 @@ const Index = () => {
       try {
         const text = ev.target?.result as string;
         const lines = text.split('\n').filter(l => l.trim());
-        // Try to find the library data (skip header rows)
-        const dataStartIdx = lines.findIndex(l => /^\d+[,\t]/.test(l.replace(/"/g, '').trim()));
-        if (dataStartIdx === -1) {
-          // Try parsing with header row
-          const headerLine = lines.find(l => l.toLowerCase().includes('título') || l.toLowerCase().includes('titulo'));
-          if (!headerLine) {
-            toast.error('Formato de CSV não reconhecido');
-            return;
-          }
-          const headerIdx = lines.indexOf(headerLine);
-          const dataLines = lines.slice(headerIdx + 1);
-          const imported: Book[] = dataLines.map((line, i) => {
-            const cols = line.split(',').map(c => c.replace(/"/g, '').trim());
-            return {
-              id: `imported-${Date.now()}-${i}`,
-              title: cols[1] || cols[0] || 'Sem título',
-              authors: cols[2] || '',
-              genre: (cols[3] || 'Literatura') as BookGenre,
-              tags: [],
-              keywords: cols[5] || '',
-              originalYear: cols[6] ? parseInt(cols[6]) : null,
-              editionYear: cols[7] ? parseInt(cols[7]) : null,
-              publisher: cols[8] || '',
-              isbn: cols[9] || '',
-              pages: cols[10] ? parseInt(cols[10]) : null,
-              language: (cols[11] || 'Português') as BookLanguage,
-              format: (cols[12] || 'Físico') as BookFormat,
-              status: (cols[13] || 'Quero Ler') as BookStatus,
-              rating: cols[14] ? parseInt(cols[14]) : null,
-              startDate: null,
-              endDate: null,
-              notes: cols[17] || '',
-              coverUrl: '',
-            };
-          }).filter(b => b.title && b.title !== 'Sem título');
-          if (imported.length > 0) {
-            setBooks(prev => [...imported, ...prev]);
-            toast.success(`${imported.length} livros importados!`);
-          } else {
-            toast.error('Nenhum livro encontrado no CSV');
-          }
+        const headerLine = lines.find(l => l.toLowerCase().includes('título') || l.toLowerCase().includes('titulo'));
+        if (!headerLine) {
+          toast.error('Formato de CSV não reconhecido');
+          return;
+        }
+        const headerIdx = lines.indexOf(headerLine);
+        const dataLines = lines.slice(headerIdx + 1);
+        const imported: Book[] = dataLines.map((line, i) => {
+          const cols = line.split(',').map(c => c.replace(/"/g, '').trim());
+          return {
+            id: `imported-${Date.now()}-${i}`,
+            title: cols[1] || cols[0] || 'Sem título',
+            authors: cols[2] || '',
+            genre: (cols[3] || 'Literatura') as BookGenre,
+            tags: [],
+            keywords: cols[5] || '',
+            originalYear: cols[6] ? parseInt(cols[6]) : null,
+            editionYear: cols[7] ? parseInt(cols[7]) : null,
+            publisher: cols[8] || '',
+            isbn: cols[9] || '',
+            pages: cols[10] ? parseInt(cols[10]) : null,
+            language: (cols[11] || 'Português') as BookLanguage,
+            format: (cols[12] || 'Físico') as BookFormat,
+            status: (cols[13] || 'Quero Ler') as BookStatus,
+            rating: cols[14] ? parseInt(cols[14]) : null,
+            startDate: null,
+            endDate: null,
+            notes: cols[17] || '',
+            coverUrl: '',
+          };
+        }).filter(b => b.title && b.title !== 'Sem título');
+        if (imported.length > 0) {
+          setBooks(prev => [...imported, ...prev]);
+          toast.success(`${imported.length} livros importados!`);
+        } else {
+          toast.error('Nenhum livro encontrado no CSV');
         }
       } catch {
         toast.error('Erro ao importar CSV');
@@ -124,7 +129,7 @@ const Index = () => {
     <div className="min-h-screen bg-background flex">
       {/* Sidebar */}
       <aside className={cn(
-        'fixed inset-y-0 left-0 z-40 w-56 bg-card border-r border-border flex flex-col transition-transform lg:translate-x-0 lg:static',
+        'fixed inset-y-0 left-0 z-40 w-56 bg-card border-r border-border flex flex-col transition-transform lg:translate-x-0 lg:static paper-texture',
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       )}>
         <div className="p-5 border-b border-border">
@@ -199,7 +204,13 @@ const Index = () => {
             <DashboardView books={books} onBookClick={handleBookClick} />
           )}
           {page === 'catalog' && (
-            <CatalogView books={books} onBookClick={handleBookClick} onAddBook={() => setAddOpen(true)} />
+            <CatalogView
+              books={books}
+              onBookClick={handleBookClick}
+              onAddBook={() => setAddOpen(true)}
+              showArchived={showArchived}
+              onToggleArchived={() => setShowArchived(!showArchived)}
+            />
           )}
         </div>
       </main>
@@ -209,6 +220,8 @@ const Index = () => {
         open={detailOpen}
         onOpenChange={setDetailOpen}
         onUpdate={handleUpdateBook}
+        onDelete={handleDeleteBook}
+        onArchive={handleArchiveBook}
       />
       <AddBookDialog
         open={addOpen}

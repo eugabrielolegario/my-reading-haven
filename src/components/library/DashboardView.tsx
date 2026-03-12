@@ -1,9 +1,10 @@
 import { useMemo } from 'react';
 import { Book } from '@/types/book';
 import KPICard from './KPICard';
+import ReadingHeatmap from './ReadingHeatmap';
 import {
   BookOpen, CheckCircle2, Eye, BookMarked, FileText,
-  Star, Award, CalendarDays,
+  Star, Award, CalendarDays, TrendingUp, Trophy, Quote, Target,
 } from 'lucide-react';
 import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis,
@@ -12,21 +13,23 @@ import {
 import StatusBadge from './StatusBadge';
 import StarRating from './StarRating';
 import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 
 interface DashboardViewProps {
   books: Book[];
   onBookClick: (book: Book) => void;
+  readingGoal?: number;
 }
 
 const CHART_COLORS = [
-  'hsl(142, 71%, 45%)',
-  'hsl(217, 91%, 60%)',
-  'hsl(215, 14%, 65%)',
-  'hsl(45, 93%, 47%)',
-  'hsl(0, 84%, 60%)',
+  'hsl(36, 55%, 50%)',
+  'hsl(217, 55%, 55%)',
+  'hsl(30, 8%, 50%)',
+  'hsl(45, 65%, 42%)',
+  'hsl(0, 50%, 45%)',
 ];
 
-const DashboardView = ({ books, onBookClick }: DashboardViewProps) => {
+const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewProps) => {
   const stats = useMemo(() => {
     const completed = books.filter(b => b.status === 'Concluído');
     const reading = books.filter(b => b.status === 'Lendo');
@@ -43,6 +46,51 @@ const DashboardView = ({ books, onBookClick }: DashboardViewProps) => {
       return new Date(b.endDate).getFullYear() === new Date().getFullYear();
     }).length;
 
+    // Pages per day (last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    let recentPages = 0;
+    books.forEach(b => {
+      b.readingSessions?.forEach(s => {
+        if (new Date(s.date) >= thirtyDaysAgo) recentPages += s.pagesRead;
+      });
+    });
+    const pagesPerDay = (recentPages / 30).toFixed(1);
+
+    // Top authors
+    const authorCounts: Record<string, { count: number; totalRating: number; rated: number }> = {};
+    books.forEach(b => {
+      const author = b.authors;
+      if (!authorCounts[author]) authorCounts[author] = { count: 0, totalRating: 0, rated: 0 };
+      authorCounts[author].count++;
+      if (b.rating) { authorCounts[author].totalRating += b.rating; authorCounts[author].rated++; }
+    });
+    const topAuthors = Object.entries(authorCounts)
+      .sort((a, b) => b[1].count - a[1].count)
+      .slice(0, 5)
+      .map(([name, data]) => ({
+        name,
+        count: data.count,
+        avgRating: data.rated ? (data.totalRating / data.rated).toFixed(1) : '—',
+      }));
+
+    // Book of the week - highest rated recently completed
+    const recentHighest = [...completed]
+      .filter(b => b.rating)
+      .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0) || (b.endDate ?? '').localeCompare(a.endDate ?? ''))
+      [0] ?? null;
+
+    // Total quotes
+    const totalQuotes = books.reduce((s, b) => s + (b.quotes?.length ?? 0), 0);
+    const lastQuote = books
+      .flatMap(b => (b.quotes ?? []).map(q => ({ ...q, bookTitle: b.title })))
+      .sort((a, b) => b.addedAt.localeCompare(a.addedAt))[0] ?? null;
+
+    // Recently added (last month)
+    const recentlyAdded = books
+      .filter(b => b.startDate && new Date(b.startDate) >= thirtyDaysAgo)
+      .slice(0, 3);
+
     return {
       total: books.length,
       completed: completed.length,
@@ -52,10 +100,16 @@ const DashboardView = ({ books, onBookClick }: DashboardViewProps) => {
       avgRating,
       fiveStars,
       thisYear,
+      pagesPerDay,
       readingBooks: reading,
       recentlyCompleted: [...completed]
         .sort((a, b) => (b.endDate ?? '').localeCompare(a.endDate ?? ''))
         .slice(0, 5),
+      topAuthors,
+      bookOfWeek: recentHighest,
+      totalQuotes,
+      lastQuote,
+      recentlyAdded,
     };
   }, [books]);
 
@@ -85,8 +139,27 @@ const DashboardView = ({ books, onBookClick }: DashboardViewProps) => {
       .map(([year, count]) => ({ year, count }));
   }, [books]);
 
+  const goalProgress = Math.round((stats.thisYear / readingGoal) * 100);
+
   return (
     <div className="space-y-8">
+      {/* Desafio Anual */}
+      <div className="rounded-lg ornamental-border bg-card p-5 animate-fade-in paper-texture">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Target size={18} className="text-primary" />
+            <h3 className="text-sm font-semibold font-serif">Desafio de Leitura {new Date().getFullYear()}</h3>
+          </div>
+          <span className="text-sm font-bold text-primary">{stats.thisYear}/{readingGoal}</span>
+        </div>
+        <Progress value={Math.min(goalProgress, 100)} className="h-2.5" />
+        <p className="text-xs text-muted-foreground mt-2">
+          {goalProgress >= 100
+            ? '🎉 Meta alcançada! Parabéns!'
+            : `Faltam ${readingGoal - stats.thisYear} livros — ${pagesPerDayProjection(stats.thisYear, readingGoal)}`}
+        </p>
+      </div>
+
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <KPICard title="Total de Livros" value={stats.total} icon={<BookOpen size={20} />} delay={0} />
@@ -96,14 +169,57 @@ const DashboardView = ({ books, onBookClick }: DashboardViewProps) => {
         <KPICard title="Páginas Lidas" value={stats.totalPages.toLocaleString('pt-BR')} icon={<FileText size={20} />} delay={200} />
         <KPICard title="Nota Média" value={stats.avgRating} icon={<Star size={20} />} delay={250} />
         <KPICard title="5 Estrelas" value={stats.fiveStars} icon={<Award size={20} />} delay={300} />
-        <KPICard title="Este Ano" value={stats.thisYear} icon={<CalendarDays size={20} />} delay={350} />
+        <KPICard title="Ritmo" value={`${stats.pagesPerDay} pág/dia`} icon={<TrendingUp size={20} />} delay={350} subtitle="Últimos 30 dias" />
+      </div>
+
+      {/* Heatmap */}
+      <ReadingHeatmap books={books} />
+
+      {/* Book of the Week + Quotes Counter */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {stats.bookOfWeek && (
+          <div
+            className="rounded-lg ornamental-border bg-card p-5 animate-fade-in paper-texture cursor-pointer hover:border-primary/40 transition-colors"
+            onClick={() => onBookClick(stats.bookOfWeek!)}
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <Trophy size={16} className="text-primary" />
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Destaque</h3>
+            </div>
+            <div className="flex gap-4">
+              <img
+                src={stats.bookOfWeek.coverUrl}
+                alt={stats.bookOfWeek.title}
+                className="w-16 h-24 rounded object-cover ornamental-border"
+                onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
+              />
+              <div>
+                <p className="font-serif font-semibold text-sm">{stats.bookOfWeek.title}</p>
+                <p className="text-xs text-muted-foreground">{stats.bookOfWeek.authors}</p>
+                <StarRating rating={stats.bookOfWeek.rating} size={14} />
+              </div>
+            </div>
+          </div>
+        )}
+        <div className="rounded-lg ornamental-border bg-card p-5 animate-fade-in paper-texture">
+          <div className="flex items-center gap-2 mb-3">
+            <Quote size={16} className="text-primary" />
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Citações Salvas</h3>
+          </div>
+          <p className="text-3xl font-bold font-serif">{stats.totalQuotes}</p>
+          {stats.lastQuote && (
+            <p className="text-xs text-muted-foreground mt-2 italic line-clamp-2">
+              "{stats.lastQuote.text}" — {stats.lastQuote.bookTitle}
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Status Pie */}
-        <div className="rounded-xl border border-border bg-card p-5 animate-fade-in" style={{ animationDelay: '400ms' }}>
-          <h3 className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wider">Distribuição por Status</h3>
+        <div className="rounded-lg ornamental-border bg-card p-5 animate-fade-in paper-texture" style={{ animationDelay: '400ms' }}>
+          <h3 className="text-xs font-semibold text-muted-foreground mb-4 uppercase tracking-widest">Distribuição por Status</h3>
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>
               <Pie data={statusData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={4} dataKey="value">
@@ -125,8 +241,8 @@ const DashboardView = ({ books, onBookClick }: DashboardViewProps) => {
         </div>
 
         {/* Genre Bars */}
-        <div className="rounded-xl border border-border bg-card p-5 animate-fade-in" style={{ animationDelay: '450ms' }}>
-          <h3 className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wider">Top Gêneros</h3>
+        <div className="rounded-lg ornamental-border bg-card p-5 animate-fade-in paper-texture" style={{ animationDelay: '450ms' }}>
+          <h3 className="text-xs font-semibold text-muted-foreground mb-4 uppercase tracking-widest">Top Gêneros</h3>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={genreData} layout="vertical" margin={{ left: 10, right: 10 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -146,8 +262,8 @@ const DashboardView = ({ books, onBookClick }: DashboardViewProps) => {
         </div>
 
         {/* Year Bars */}
-        <div className="rounded-xl border border-border bg-card p-5 animate-fade-in" style={{ animationDelay: '500ms' }}>
-          <h3 className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wider">Livros por Ano</h3>
+        <div className="rounded-lg ornamental-border bg-card p-5 animate-fade-in paper-texture" style={{ animationDelay: '500ms' }}>
+          <h3 className="text-xs font-semibold text-muted-foreground mb-4 uppercase tracking-widest">Livros por Ano</h3>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={yearData} margin={{ left: -10, right: 10 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -167,6 +283,59 @@ const DashboardView = ({ books, onBookClick }: DashboardViewProps) => {
         </div>
       </div>
 
+      {/* Top Authors */}
+      {stats.topAuthors.length > 0 && (
+        <div className="rounded-lg ornamental-border bg-card p-5 animate-fade-in paper-texture">
+          <h3 className="text-xs font-semibold text-muted-foreground mb-4 uppercase tracking-widest">Autores Favoritos</h3>
+          <div className="space-y-2">
+            {stats.topAuthors.map((author, i) => (
+              <div key={author.name} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                <div className="flex items-center gap-3">
+                  <span className="text-xs text-muted-foreground w-5 font-serif font-bold">{i + 1}</span>
+                  <span className="text-sm font-medium">{author.name}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Badge variant="secondary" className="text-xs">{author.count} livro{author.count > 1 ? 's' : ''}</Badge>
+                  <span className="text-xs text-muted-foreground">★ {author.avgRating}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Descobertas do Mês */}
+      {stats.recentlyAdded.length > 0 && (
+        <div className="animate-fade-in" style={{ animationDelay: '550ms' }}>
+          <h3 className="text-lg font-semibold font-serif mb-4 flex items-center gap-2">
+            ✦ Descobertas Recentes
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {stats.recentlyAdded.map(book => (
+              <div
+                key={book.id}
+                onClick={() => onBookClick(book)}
+                className="rounded-lg ornamental-border bg-card p-4 cursor-pointer hover:border-primary/40 transition-colors paper-texture"
+              >
+                <div className="flex gap-3">
+                  <img
+                    src={book.coverUrl}
+                    alt={book.title}
+                    className="w-12 h-18 rounded object-cover"
+                    onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
+                  />
+                  <div>
+                    <p className="font-serif font-semibold text-sm leading-tight">{book.title}</p>
+                    <p className="text-xs text-muted-foreground">{book.authors}</p>
+                    <StatusBadge status={book.status} className="mt-1" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Currently Reading */}
       {stats.readingBooks.length > 0 && (
         <div className="animate-fade-in" style={{ animationDelay: '550ms' }}>
@@ -178,7 +347,7 @@ const DashboardView = ({ books, onBookClick }: DashboardViewProps) => {
                 <div
                   key={book.id}
                   onClick={() => onBookClick(book)}
-                  className="flex gap-4 p-4 rounded-xl border border-border bg-card hover:border-primary/40 transition-colors cursor-pointer"
+                  className="flex gap-4 p-4 rounded-lg ornamental-border bg-card hover:border-primary/40 transition-colors cursor-pointer paper-texture"
                 >
                   <img
                     src={book.coverUrl}
@@ -187,7 +356,7 @@ const DashboardView = ({ books, onBookClick }: DashboardViewProps) => {
                     onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm truncate">{book.title}</p>
+                    <p className="font-semibold text-sm truncate font-serif">{book.title}</p>
                     <p className="text-xs text-muted-foreground">{book.authors}</p>
                     <div className="mt-2">
                       <div className="flex justify-between text-xs text-muted-foreground mb-1">
@@ -207,13 +376,13 @@ const DashboardView = ({ books, onBookClick }: DashboardViewProps) => {
       {/* Recent Reads */}
       {stats.recentlyCompleted.length > 0 && (
         <div className="animate-fade-in" style={{ animationDelay: '600ms' }}>
-          <h3 className="text-lg font-semibold font-serif mb-4">✅ Últimas Leituras</h3>
+          <h3 className="text-lg font-semibold font-serif mb-4">✦ Últimas Leituras</h3>
           <div className="space-y-2">
             {stats.recentlyCompleted.map(book => (
               <div
                 key={book.id}
                 onClick={() => onBookClick(book)}
-                className="flex items-center gap-4 p-3 rounded-lg border border-border bg-card hover:border-primary/40 transition-colors cursor-pointer"
+                className="flex items-center gap-4 p-3 rounded-lg ornamental-border bg-card hover:border-primary/40 transition-colors cursor-pointer"
               >
                 <img
                   src={book.coverUrl}
@@ -222,7 +391,7 @@ const DashboardView = ({ books, onBookClick }: DashboardViewProps) => {
                   onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
                 />
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm truncate">{book.title}</p>
+                  <p className="font-semibold text-sm truncate font-serif">{book.title}</p>
                   <p className="text-xs text-muted-foreground">{book.authors}</p>
                 </div>
                 <StarRating rating={book.rating} size={14} />
@@ -235,5 +404,15 @@ const DashboardView = ({ books, onBookClick }: DashboardViewProps) => {
     </div>
   );
 };
+
+function pagesPerDayProjection(current: number, goal: number): string {
+  const now = new Date();
+  const endOfYear = new Date(now.getFullYear(), 11, 31);
+  const daysLeft = Math.ceil((endOfYear.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  const remaining = goal - current;
+  if (remaining <= 0) return 'Meta cumprida!';
+  const booksPerMonth = (remaining / (daysLeft / 30)).toFixed(1);
+  return `~${booksPerMonth} livros/mês para atingir a meta`;
+}
 
 export default DashboardView;
